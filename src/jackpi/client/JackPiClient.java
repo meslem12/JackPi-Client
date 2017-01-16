@@ -1,10 +1,11 @@
-package jackpi.server;
+package jackpi.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import javax.swing.JTable;
 
 /**
  *
@@ -13,35 +14,41 @@ import java.net.SocketAddress;
 public class JackPiClient
 {
 
-  /**
-   * @param args the command line arguments
+  /*
+  * --Protokoll--
+  * Connection opened
+  * Client schickt: "R1-R2" (100-100)
+  * Server antwortet "Ergebnis" (50)
+  * Connection closed
+  *
    */
-  public static void main(String[] args)
+  public static double getData(double r1, double r2) throws IOException, InterruptedException
   {
-    String url = "jackpi.ddns.net";
+    String url = "localhost";
     int port = 9999;
 
-    try
+    //System.out.println("Starting Client");
+    byte[] rv;
+    try (Socket socket = new Socket(url, port))
     {
-      System.out.println("Starting Client");
-      Socket socket = new Socket(url,port);
-      
       System.out.println("Connected");
       InputStream input = socket.getInputStream();
-
-      
-      byte[] b = new byte[9];
-      input.read(b, 0, 9);
-      String str = new String(b, "UTF-8");
-      
-      System.out.println(str);
+      OutputStream output = socket.getOutputStream();
+      byte[] b = String.format("%.2f-%.2f", r1, r2).getBytes();
+      output.write(b);
+      output.flush();
+      System.out.println("  Data sent: " + new String(b));
+      Thread.sleep(100);
+      rv = new byte[50];
+      input.read(rv);
+      System.out.println("  Data read: " + new String(rv));
+      socket.close();
       System.out.println("Disconnected");
+      
+    }
 
-    }
-    catch (Exception ex)
-    {
-      System.out.println(ex);
-    }
+    return Double.parseDouble(new String(rv).replace(',', '.'));
+
   }
 
 }
