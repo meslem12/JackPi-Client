@@ -9,7 +9,7 @@ import javax.swing.JTable;
 
 /**
  *
- * @author Messing Levin <meslem12@htl-kaindorf.ac.at>
+ * @author lmessing
  */
 public class JackPiClient
 {
